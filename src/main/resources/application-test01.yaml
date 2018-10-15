@@ -1,0 +1,3 @@
+sqoopTmpDirPrefix: /tmp/sqoop/import
+scripts_hdfsDir:
+  sqoop: /tmp/scripts/sqoop
