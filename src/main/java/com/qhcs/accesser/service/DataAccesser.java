@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface DataAccesser {
 
-    public boolean configueSqoopJob(String dataSource, boolean isFullDBSync, boolean isAllColumns,
+    public String configueSqoopJob(String dataSource, boolean isFullDBSync, boolean isAllColumns,
                                     String notSyncColumns, String srcTables, boolean isFullTableSync,
                                     String destOnHdfs, String destDB, String destTablePrefix,
                                     String storeFileType, String keyColumn) throws Exception;
@@ -26,7 +26,7 @@ public interface DataAccesser {
                              String sync_password) throws Exception;
 
 
-
+    public void submit2Oozie(String scriptPath) throws Exception;
 
 
 

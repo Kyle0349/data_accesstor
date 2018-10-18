@@ -3,6 +3,7 @@ package com.qhcs.accesser.controller;
 
 import com.qhcs.accesser.bean.BeanDBSourceShow;
 import com.qhcs.accesser.service.impl.DataAccesserImpl;
+import com.qhcs.accesser.service.impl.DispatchServiceImpl;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,6 +20,8 @@ public class DataAccesserController {
 
     @Autowired
     private DataAccesserImpl dataAccesser;
+    @Autowired
+    private DispatchServiceImpl dispatchService;
 
 
     @RequestMapping("/configueSqoopJob")
@@ -50,11 +53,10 @@ public class DataAccesserController {
         }
         if (!isFullTables && !StringUtils.isNotBlank(keyColumn)) return "增量同步， keyColumn 需要提供增量字段【日期】";
 
-        boolean configResult = dataAccesser.configueSqoopJob(dataSource, isFullDBSync, isAllColumns,
+        String configResult = dataAccesser.configueSqoopJob(dataSource, isFullDBSync, isAllColumns,
                 notSyncColumns, srcTables, isFullTables, destOnHdfs,
                 destDB, destTablePrefix, storeFileType, keyColumn);
-        if (configResult) return "同步脚本创建成功";
-        return "同步脚本创建失败";
+        return configResult;
 
     }
 
@@ -110,5 +112,55 @@ public class DataAccesserController {
 
         return addResult;
     }
+
+
+
+    @ResponseBody
+    @RequestMapping("/submit2Oozie")
+    public String submit2Oozie(HttpServletRequest request) throws Exception {
+        String scriptPath = request.getParameter("scriptPath");
+        String jobName = request.getParameter("jobName");
+        if (!StringUtils.isNotBlank(scriptPath)) return "scriptPath 不能为空";
+        if (!StringUtils.isNotBlank(jobName)) return "jobName 不能为空";
+        String job_workflow = dispatchService.submitJob(jobName, scriptPath, null);
+        return job_workflow;
+    }
+
+
+    @ResponseBody
+    @RequestMapping("/runOozieJob")
+    public boolean runOozieJob(HttpServletRequest request){
+        String jobId = request.getParameter("jobId");
+        if (!StringUtils.isNotBlank(jobId)) return false;
+        dispatchService.runJob(jobId);
+        return true;
+    }
+
+
+
+    @ResponseBody
+    @RequestMapping("/runSchedulerJob")
+    public String runSchedulerJob(HttpServletRequest request){
+
+        String jobName = request.getParameter("jobName");
+        String shPath = request.getParameter("shPath");
+        String frequency = request.getParameter("frequency");
+        String startTime = request.getParameter("startTime");
+
+        //frequency = "5 16 * * *";
+        if (!StringUtils.isNotBlank(jobName)) return "jobName 不能为空";
+        if (!StringUtils.isNotBlank(shPath)) return "shPath 不能为空";
+        if (!StringUtils.isNotBlank(frequency)) return "frequency 不能为空";
+        if (!StringUtils.isNotBlank(startTime)) return "startTime 不能为空";
+        startTime += "+0800";
+
+        String s = dispatchService.submitTimerJob(jobName, shPath, frequency, startTime, null);
+        return s;
+
+    }
+
+
+
+
 
 }

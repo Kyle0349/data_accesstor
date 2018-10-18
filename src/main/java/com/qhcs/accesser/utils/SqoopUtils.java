@@ -20,7 +20,7 @@ public class SqoopUtils {
      * @param scriptName
      * @throws Exception
      */
-    public static void allColumnsfullTableSyncScript( String connection, String userName, String password,
+    public static String allColumnsfullTableSyncScript( String connection, String userName, String password,
                                            String srcTablesStr, String hiveDB, String destTablePrefix,
                                            String sqoopTmpDir, String queueName, String fieldsSeparator,
                                            String linesSeparator, String hdfsDir, String scriptName) throws Exception{
@@ -73,7 +73,8 @@ public class SqoopUtils {
         sb.append("done").append("\n");
 
         ByteArrayInputStream is = new ByteArrayInputStream(sb.toString().getBytes());
-        HdfsOper.put(is, hdfsDir, scriptName + ".sh");
+        String scriptsPath = HdfsOper.put(is, hdfsDir, scriptName + ".sh");
+        return scriptsPath;
 
     }
 
@@ -94,7 +95,7 @@ public class SqoopUtils {
      * @param scriptName
      */
 
-    public static void allColumnsIncremTableSyncScript(String connection, String userName, String password,
+    public static String allColumnsIncremTableSyncScript(String connection, String userName, String password,
                                                 String srcTablesStr, String hiveDB, String destTablePrefix,
                                                 String sqoopTmpDir, String queueName, String fieldsSeparator,
                                                 String linesSeparator, String hdfsDir, String scriptName,
@@ -114,7 +115,7 @@ public class SqoopUtils {
         sb.append(String.join("","fieldsSeparator='",fieldsSeparator,"'")).append("\n");
         sb.append(String.join("","linesSeparator='",linesSeparator,"'")).append("\n");
         sb.append(String.join("","keyColumn='",keyColumn,"'")).append("\n\n");
-        sb.append("endPoint=`date +%Y-%m-%d`").append("\n\n");
+        sb.append("endPoint=`date '+%Y-%m-%d %H:%M:%S'`").append("\n\n");
         sb.append("# srcTables").append("\n");
         sb.append("srcTables='").append("\n");
         for (String srcTable : srcTables) {
@@ -127,10 +128,17 @@ public class SqoopUtils {
         sb.append("do").append("\n\n");
 
         sb.append("# get the start point").append("\n");
-        sb.append("startFrom=`hive -e \"").append("\n");
+        sb.append("startFrom_tmp=`hive -e \"").append("\n");
         sb.append("select max(${keyColumn}) from ${hiveDB}.${destTablePrefix}_${tableName};").append("\n");
-        sb.append("\"'").append("\n");
-        sb.append("condition=\" ${keyColumn} >= ${startFrom} and ${keyColumn} < ${endPoint} \"").append("\n");
+        sb.append("\"`").append("\n");
+
+        sb.append("if [[ $? -ne 0  ]]").append("\n");
+        sb.append("then").append("\n");
+        sb.append("condition=\" 1=1 \"").append("\n");
+        sb.append("else").append("\n");
+        sb.append("startFrom=`echo ${startFrom_tmp:0:19}`").append("\n");
+        sb.append("condition=\" ${keyColumn} > '${startFrom}' and ${keyColumn} < '${endPoint}' \"").append("\n");
+        sb.append("fi").append("\n\n");
 
         sb.append("sqoop import ");
         sb.append("-D mapred.job.queue.name=");
@@ -144,21 +152,21 @@ public class SqoopUtils {
         sb.append("--hive-database ${hiveDB}").append(" \\").append("\n");
         sb.append("--hive-table ${destTablePrefix}_${tableName}").append(" \\").append("\n");
         sb.append("--hive-import").append(" \\").append("\n");
-        sb.append("--target-dir ${sqoopTmpDir}").append(" \\").append("\n");
+        sb.append("--target-dir ${sqoopTmpDir}/${tableName}").append(" \\").append("\n");
         sb.append("--delete-target-dir").append(" \\").append("\n");
         sb.append("--hive-drop-import-delims").append(" \\").append("\n");
         sb.append("--fields-terminated-by ${fieldsSeparator}").append(" \\").append("\n");
+        sb.append("--map-column-hive date_created=string \\").append("\n");
+        sb.append("--map-column-java date_created=String \\").append("\n");
         sb.append("--lines-terminated-by '\\n'").append(" \\").append("\n");
         sb.append("--null-string '\\\\N'").append(" \\").append("\n");
         sb.append("--null-non-string '\\\\N'").append(" \\").append("\n");
         sb.append("--as-parquetfile").append(" \\").append("\n");
         sb.append("-m 1").append("\n\n");
-
         sb.append("done").append("\n");
-
-
         ByteArrayInputStream is = new ByteArrayInputStream(sb.toString().getBytes());
-        HdfsOper.put(is, hdfsDir, scriptName + "_zl.sh");
+        String scriptsPath = HdfsOper.put(is, hdfsDir, scriptName + "_zl.sh");
+        return scriptsPath;
 
     }
 

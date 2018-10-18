@@ -13,7 +13,7 @@ import java.net.URI;
 public class HdfsOper {
 
 
-    public static void put(InputStream is, String hdfsDir, String scriptName) throws Exception{
+    public static String put(InputStream is, String hdfsDir, String scriptName) throws Exception{
         Configuration conf = new Configuration();
         URI uri = new URI("hdfs://centos1:8020");
         FileSystem fs = FileSystem.get(uri, conf, "root");
@@ -22,7 +22,7 @@ public class HdfsOper {
         }
         FSDataOutputStream fsDataOutputStream = fs.create(new Path(hdfsDir + "/" + scriptName));
         IOUtils.copyBytes(is, fsDataOutputStream,1024,true);
-
+        return hdfsDir + "/" + scriptName;
     }
 
 

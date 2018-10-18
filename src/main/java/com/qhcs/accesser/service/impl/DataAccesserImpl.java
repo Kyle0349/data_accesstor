@@ -6,6 +6,7 @@ import com.qhcs.accesser.bean.BeanDBSourceShow;
 import com.qhcs.accesser.service.DataAccesser;
 import com.qhcs.accesser.utils.ConnManager;
 import com.qhcs.accesser.utils.SqoopUtils;
+import com.qhcs.accesser.utils.XmlCreateUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -29,13 +30,13 @@ public class DataAccesserImpl implements DataAccesser {
 
 
     @Override
-    public boolean configueSqoopJob(String dataSource, boolean isFullDBSync, boolean isAllColumns,
+    public String configueSqoopJob(String dataSource, boolean isFullDBSync, boolean isAllColumns,
                                     String notSyncColumns, String srcTables, boolean isFullTableSync,
                                     String destOnHdfs, String destDB, String destTablePrefix,
                                     String storeFileType, String keyColumn) throws Exception {
 
         BeanDBSourceInfo sourceInfo = getSourceInfoBySourceName(dataSource);
-        if (null == sourceInfo) return false;
+        if (null == sourceInfo) return "该数据源不存在";
 
         String connection = String.join("",
                 sourceInfo.getDb_url_prefix(),
@@ -52,38 +53,38 @@ public class DataAccesserImpl implements DataAccesser {
 
         if (isFullDBSync){
             //全库全表全量同步
-            return true;
+            return "";
         }
 
         if (isAllColumns && isFullTableSync){
             //全表全量同步
-            SqoopUtils.allColumnsfullTableSyncScript(connection,userName,password,srcTables,destDB,
-                    destTablePrefix,sqoopTmpDir,queueName,
-                    fieldsSeparator,linesSeparator,hdfsDir,scriptName);
-            return true;
+            String scriptPath = SqoopUtils.allColumnsfullTableSyncScript(connection, userName, password, srcTables, destDB,
+                    destTablePrefix, sqoopTmpDir, queueName,
+                    fieldsSeparator, linesSeparator, hdfsDir, scriptName);
+            return scriptPath;
         }
 
         if(isAllColumns && !isFullTableSync){
             //全表增量同步
-            SqoopUtils.allColumnsIncremTableSyncScript(connection, userName,
-                    password, srcTables, destDB, destTablePrefix,sqoopTmpDir,
+            String scriptPath = SqoopUtils.allColumnsIncremTableSyncScript(connection, userName,
+                    password, srcTables, destDB, destTablePrefix, sqoopTmpDir,
                     queueName, fieldsSeparator, linesSeparator, hdfsDir, scriptName, keyColumn);
-            return true;
+            return scriptPath;
         }
 
         if(!isAllColumns && isFullTableSync){
             //部分列全量
 
-            return true;
+            return "";
         }
 
         if(!isAllColumns && !isFullTableSync){
             //部分列增量
 
-            return true;
+            return "";
         }
 
-        return false;
+        return "";
     }
 
     @Override
@@ -159,6 +160,13 @@ public class DataAccesserImpl implements DataAccesser {
         stmt.execute(sql);
         ConnManager.close(mysqlConnection, stmt, null);
         return "添加数据源成功";
+    }
+
+
+    @Override
+    public void submit2Oozie(String scriptPath) throws Exception {
+        XmlCreateUtils.createShellWorkflowXml("",
+                "job_sync_sqoop_000001",scriptPath,null);
     }
 
 

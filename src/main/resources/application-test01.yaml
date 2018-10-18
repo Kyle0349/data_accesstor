@@ -1,3 +1,28 @@
 sqoopTmpDirPrefix: /tmp/sqoop/import
 scripts_hdfsDir:
   sqoop: /tmp/scripts/sqoop
+
+oozie_hdfsDir: /tmp/oozie/workflows
+
+#------------hive------------
+#yarn队列名
+HIVE_QUEUE_NAME: default
+#hive 计算引擎类型 (0表示Tez，1表示MapReduce)
+ENGINE_TYPE: 0
+#------------hdfs------------
+#hdfs 路径
+HDFS_URI: hdfs://centos1:8020
+#hdfs 操作用户
+HDFS_OPER_USER: hdfs
+#------------oozie------------
+#oozie提交到集群中的用户
+OOZIE_QUEUE_NAME: default
+USER_NAME: yarn
+BASE_OOZIE_URL: http://centos1:11000/oozie
+OOZIE_USE_SYSTEM_LIBPATH: true
+NAMENODE: hdfs://centos1:8020
+JOBTRACKER: centos1:8032
+OOZIE_WF_APPLICATION_PATH: /apps/oozie/workflowXml
+OOZIE_COORDINATOR_APPLICATION_PATH: /apps/oozie/coordinatorXml
+START_TIME: 2018-10-18T14:10+0800
+END_TIME: 2518-10-18T14:10+0800
