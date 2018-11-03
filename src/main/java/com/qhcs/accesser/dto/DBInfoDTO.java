@@ -1,12 +1,11 @@
-package com.qhcs.accesser.bean;
+package com.qhcs.accesser.dto;
 
-public class BeanDBInfo {
+public class DBInfoDTO {
 
     private int db_type_id;
     private String db_type_name;
     private String db_driver;
     private String db_url_prefix;
-
 
     public int getDb_type_id() {
         return db_type_id;

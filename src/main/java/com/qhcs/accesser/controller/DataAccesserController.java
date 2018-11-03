@@ -1,7 +1,6 @@
 package com.qhcs.accesser.controller;
 
 
-import com.qhcs.accesser.bean.BeanDBSourceShow;
 import com.qhcs.accesser.service.impl.DataAccesserImpl;
 import com.qhcs.accesser.service.impl.DispatchServiceImpl;
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +23,12 @@ public class DataAccesserController {
     private DispatchServiceImpl dispatchService;
 
 
+    /**
+     *
+     * @param request
+     * @return
+     * @throws Exception
+     */
     @RequestMapping("/configueSqoopJob")
     @ResponseBody
     public String configueSqoopJob(HttpServletRequest request) throws Exception{
@@ -62,19 +67,19 @@ public class DataAccesserController {
 
     @RequestMapping("/getAllSourcesByDBType")
     @ResponseBody
-    public List<BeanDBSourceShow> getAllSourcesByDBType(HttpServletRequest request) throws Exception{
+    public String getAllSourcesByDBType(HttpServletRequest request) throws Exception{
         String dbType = request.getParameter("dbType");
-        List<BeanDBSourceShow> allSource = dataAccesser.getAllSourceByDBType(dbType);
-        return allSource;
+        String allSourceByDBType = dataAccesser.getAllSourceByDBType(dbType);
+        return allSourceByDBType;
     }
 
 
     @RequestMapping("/getAllSourcesBySourceName")
     @ResponseBody
-    public BeanDBSourceShow getAllSourcesBySourceName(HttpServletRequest request) throws Exception{
+    public String getAllSourcesBySourceName(HttpServletRequest request) throws Exception{
         String sourceName = request.getParameter("sourceName");
-        BeanDBSourceShow beanDBSourceShow = dataAccesser.getAllSourcesBySourceName(sourceName);
-        return beanDBSourceShow;
+        String allSourcesBySourceName = dataAccesser.getAllSourcesBySourceName(sourceName);
+        return allSourcesBySourceName;
     }
 
 
@@ -114,6 +119,15 @@ public class DataAccesserController {
     }
 
 
+    @ResponseBody
+    @RequestMapping("/deleteSource")
+    public String deleteSource(HttpServletRequest request) throws Exception {
+        String source_name = request.getParameter("source_name");
+        if (!StringUtils.isNotBlank(source_name)) return "source_name 不能为空";
+        String rs = dataAccesser.deleteSource(source_name);
+        return rs;
+    }
+
 
     @ResponseBody
     @RequestMapping("/submit2Oozie")
@@ -135,9 +149,6 @@ public class DataAccesserController {
         dispatchService.runJob(jobId);
         return true;
     }
-
-    
-
 
 
     @ResponseBody
@@ -161,7 +172,14 @@ public class DataAccesserController {
 
     }
 
-
+    @ResponseBody
+    @RequestMapping("/killJob")
+    public String killJob(HttpServletRequest request) {
+        String jobId = request.getParameter("jobId");
+        if (!StringUtils.isNotBlank(jobId)) return "jobId 不能为空";
+        String s = dispatchService.killJob(jobId);
+        return s;
+    }
 
 
 

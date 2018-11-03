@@ -2,6 +2,7 @@ package com.qhcs.accesser.oozie;
 
 import com.qhcs.accesser.client.DBClient;
 import com.qhcs.accesser.exception.OozieManagerException;
+import org.apache.oozie.client.CoordinatorJob;
 import org.apache.oozie.client.OozieClient;
 import org.apache.oozie.client.OozieClientException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,10 @@ public class OozieManager {
 	private String USER_NAME;
 	@Value("${OOZIE_QUEUE_NAME}")
 	private String OOZIE_QUEUE_NAME;
+	@Value("${JOBTRACKER}")
+	private String JOBTRACKER;
+	@Value("${NAMENODE}")
+	private String NAMENODE;
 
 	@Autowired
 	DBClient dbCli;
@@ -35,21 +40,19 @@ public class OozieManager {
 	OozieClient ooziecli;
 
 	/**
-	 * 提交job 提交的是立即执行的job
-	 * @param namenode 
-	 * @param jobtracker 
-	 * 
+	 * 提交job 提交一个一次性的job
+	 *
 	 * @return
 	 * @throws OozieClientException
 	 */
-	public String submitJob(String workflowAppPath, String jobtracker, String namenode) throws OozieManagerException {
+	public String submitJob(String workflowAppPath) throws OozieManagerException {
 		Properties conf = ooziecli.createConfiguration();
 		// 配置conf
 		conf.setProperty("oozie.use.system.libpath", OOZIE_USE_SYSTEM_LIBPATH);
 		conf.setProperty("oozie.wf.application.path", workflowAppPath);
 		conf.setProperty("user.name", USER_NAME);
-		conf.setProperty("jobTracker", jobtracker);
-		conf.setProperty("nameNode", namenode);
+		conf.setProperty("jobTracker", JOBTRACKER);
+		conf.setProperty("nameNode", NAMENODE);
 		conf.setProperty("queueName", OOZIE_QUEUE_NAME);
 		String jobId = null;
 		try {
@@ -64,16 +67,15 @@ public class OozieManager {
 	 * 提交定时任务job
 	 * 
 	 * @param coordPath
-	 * @param namenode 
-	 * @param jobtracker 
-	 * @param workflowAppPath 
+	 * @param workflowAppPath
 	 * @param endTime 
 	 * @param startTime 
 	 * @param frequency 
 	 * @return
 	 * @throws OozieManagerException
 	 */
-	public String submitTimerJob(String coordPath, String frequency, String startTime, String endTime, String workflowAppPath, String jobtracker, String namenode) throws OozieManagerException {
+	public String submitTimerJob(String coordPath, String frequency, String startTime,
+								 String endTime, String workflowAppPath) throws OozieManagerException {
 		Properties conf = ooziecli.createConfiguration();
 		conf.setProperty("oozie.use.system.libpath", OOZIE_USE_SYSTEM_LIBPATH);
 		conf.setProperty("oozie.coord.application.path", coordPath);
@@ -82,12 +84,12 @@ public class OozieManager {
 		conf.setProperty("startTime", startTime);
 		conf.setProperty("endTime", endTime);
 		conf.setProperty("workflowAppUri", workflowAppPath);
-		conf.setProperty("jobTracker", jobtracker);
-		conf.setProperty("nameNode", namenode);
+		conf.setProperty("jobTracker", JOBTRACKER);
+		conf.setProperty("nameNode", NAMENODE);
 		conf.setProperty("queueName", OOZIE_QUEUE_NAME);
 		String jobId = null;
 		try {
-			jobId = ooziecli.run(conf);
+			jobId = ooziecli.submit(conf);
 		} catch (OozieClientException e) {
 			throw new OozieManagerException("submitTimerJob  error,error msg is" + e.getMessage());
 		}
@@ -180,4 +182,26 @@ public class OozieManager {
 		}
 		return workflowAppUri;
 	}
+
+
+	/**
+	 * 杀死job
+	 * @param jobId
+	 * @return
+	 * @throws OozieManagerException
+	 */
+	public String killJob(String jobId) throws OozieManagerException {
+		try {
+			CoordinatorJob coordJobInfo = ooziecli.getCoordJobInfo(jobId);
+			String user = coordJobInfo.getUser();
+			System.out.println("user: " + user);
+			ooziecli.kill(jobId);
+		} catch (OozieClientException e) {
+			e.printStackTrace();
+		}
+		return "job: " + jobId + "is killed";
+
+	}
+
+
 }

@@ -51,7 +51,8 @@ public interface DispatchService {
 	 */
 	void reRunJob(String jobId) throws DispatchServiceException;
 	
-	
+
+	String killJob(String jobId) throws DispatchServiceException;
 
 
 }

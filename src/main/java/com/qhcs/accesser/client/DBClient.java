@@ -12,13 +12,16 @@ import java.sql.SQLException;
 
 @Component
 public class DBClient {
+
 	private static final Logger logger = LoggerFactory.getLogger(HiveClient.class);
-	private ComboPooledDataSource dbSource = new ComboPooledDataSource("oozieSource");
+
+
+	private ComboPooledDataSource oozieSource = new ComboPooledDataSource("oozieSource");
 	
-	public Connection getConnection() {
+	public Connection getOozieConnection() {
 		Connection conn = null;
 		try {
-			conn = dbSource.getConnection();
+			conn = oozieSource.getConnection();
 		} catch (Exception e) {
 			logger.error("DBClient.getHiveConnection error ,error msg is :", e);
 		}
@@ -69,7 +72,7 @@ public class DBClient {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			conn = getConnection();
+			conn = getOozieConnection();
 			ps = createStatement(conn, sql);
 			ps.setString(1, tableName);
 			rs = ps.executeQuery();
@@ -95,7 +98,7 @@ public class DBClient {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			conn = getConnection();
+			conn = getOozieConnection();
 			ps = createStatement(conn, sql);
 			ps.setString(1, jobId);
 			rs = ps.executeQuery();

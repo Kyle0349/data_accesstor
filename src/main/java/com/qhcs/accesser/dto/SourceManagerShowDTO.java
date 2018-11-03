@@ -1,10 +1,10 @@
-package com.qhcs.accesser.bean;
+package com.qhcs.accesser.dto;
 
-public class BeanDBSourceShow {
+public class SourceManagerShowDTO {
 
     private String source_id;
     private String source_name;
-    private String source_type_name;
+    private String db_type_name;
     private String source_ip;
     private String source_port;
     private String source_db;
@@ -25,12 +25,12 @@ public class BeanDBSourceShow {
         this.source_name = source_name;
     }
 
-    public String getSource_type_name() {
-        return source_type_name;
+    public String getDb_type_name() {
+        return db_type_name;
     }
 
-    public void setSource_type_name(String source_type_name) {
-        this.source_type_name = source_type_name;
+    public void setDb_type_name(String db_type_name) {
+        this.db_type_name = db_type_name;
     }
 
     public String getSource_ip() {

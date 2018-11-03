@@ -1,6 +1,7 @@
 package com.qhcs.accesser;
 
 import org.apache.oozie.client.OozieClient;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 
 @SpringBootApplication
 @Configuration
+@MapperScan({"com.qhcs.accesser.dao"})
 public class Application {
 
     public static ConfigurableApplicationContext applicationContext;

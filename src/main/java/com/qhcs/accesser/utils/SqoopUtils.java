@@ -1,7 +1,5 @@
 package com.qhcs.accesser.utils;
 
-import java.io.ByteArrayInputStream;
-
 public class SqoopUtils {
 
     /**
@@ -72,9 +70,7 @@ public class SqoopUtils {
         sb.append("-m 1").append("\n\n");
         sb.append("done").append("\n");
 
-        ByteArrayInputStream is = new ByteArrayInputStream(sb.toString().getBytes());
-        String scriptsPath = HdfsOper.put(is, hdfsDir, scriptName + ".sh");
-        return scriptsPath;
+        return sb.toString();
 
     }
 
@@ -164,13 +160,9 @@ public class SqoopUtils {
         sb.append("--as-parquetfile").append(" \\").append("\n");
         sb.append("-m 1").append("\n\n");
         sb.append("done").append("\n");
-        ByteArrayInputStream is = new ByteArrayInputStream(sb.toString().getBytes());
-        String scriptsPath = HdfsOper.put(is, hdfsDir, scriptName + "_zl.sh");
-        return scriptsPath;
+
+        return sb.toString();
 
     }
-
-
-
 
 }

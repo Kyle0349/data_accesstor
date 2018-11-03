@@ -1,7 +1,7 @@
 package com.qhcs.accesser.utils;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import com.qhcs.accesser.bean.BeanDBInfo;
+import com.qhcs.accesser.dto.DBInfoDTO;
 
 import java.sql.*;
 
@@ -16,7 +16,7 @@ public class ConnManager {
     }
 
 
-    public static boolean checkConnection(BeanDBInfo dbInfo, String username, String password,
+    public static boolean checkConnection(DBInfoDTO dbInfo, String username, String password,
                                           String source_ip, String source_port, String dbName)
             throws ClassNotFoundException {
         String conn = String.join("",
@@ -36,6 +36,7 @@ public class ConnManager {
 
 
     public static void close(Connection conn, Statement stmt, ResultSet rs) {
+
         if (null != rs){
             try {
                 rs.close();

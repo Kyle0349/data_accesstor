@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--客户映射 指定到dao接口 -->
+<mapper namespace="com.qhcs.accesser.dao.SourceManagerMapper">
+    <!--id与dao接口的方法名一直，指定结果类型，和参数类型 -->
+    <select id="querySourceManagerInfoSourceDbName" resultType="com.qhcs.accesser.dto.SourceManagerInfoDTO" parameterType="String">
+        select a.source_id, a.source_name, b.db_type_name, a.source_ip, a.source_port,
+        a.source_db, b.db_driver, a.sync_username, a.sync_password, b.db_url_prefix
+        from test_tb_source_manager a
+        left join test_tb_db_type b on a.source_type_id = b.db_type_id
+        where a.source_name = #{sourceName}
+    </select>
+
+    <select id="querySourceManagerShowByDbType" resultType="com.qhcs.accesser.dto.SourceManagerShowDTO" parameterType="String">
+        select a.source_id, a.source_name, b.db_type_name,
+        a.source_ip, a.source_port, a.source_db
+        from test_tb_source_manager a
+        left join test_tb_db_type b on a.source_type_id = b.db_type_id
+        where b.db_type_name = #{dbType}
+    </select>
+
+    <select id="querySourceManagerShowBySourceName" resultType="com.qhcs.accesser.dto.SourceManagerShowDTO" parameterType="String">
+        select a.source_id, a.source_name, b.db_type_name,
+        a.source_ip, a.source_port, a.source_db
+        from test_tb_source_manager a
+        left join test_tb_db_type b on a.source_type_id = b.db_type_id
+        where a.source_name = #{sourceName}
+    </select>
+
+    <select id="queryDBInfoByDbType" resultType="com.qhcs.accesser.dto.DBInfoDTO" parameterType="String">
+        select db_type_id, db_type_name, db_driver, db_url_prefix
+        from test_tb_db_type
+        where db_type_name = #{dbType}
+    </select>
+
+    <insert id="addNewSource" parameterType="com.qhcs.accesser.dto.SourceManagerTableDTO">
+        insert into
+        test_tb_source_manager(source_name, source_type_id,
+        source_ip, source_port, source_db, sync_username, sync_password)
+        values(#{source_name}, #{source_type_id}, #{source_ip},
+        #{source_port}, #{source_db}, #{sync_username}, #{sync_password})
+    </insert>
+
+    <select id="getDataTypes" resultType="java.lang.String" >
+        select db_type_name from test_tb_db_type
+    </select>
+
+    <delete id="deleteSource"  >
+        delete from test_tb_source_manager where source_name = #{source_name}
+    </delete>
+
+</mapper>

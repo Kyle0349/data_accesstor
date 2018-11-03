@@ -1,7 +1,5 @@
 package com.qhcs.accesser.service;
 
-import com.qhcs.accesser.bean.BeanDBSourceShow;
-
 import java.sql.SQLException;
 import java.util.List;
 
@@ -14,10 +12,10 @@ public interface DataAccesser {
 
     public List<String> getDataTypes() throws SQLException;
 
-    public List<BeanDBSourceShow> getAllSourceByDBType(String dbType) throws Exception;
+    public String getAllSourceByDBType(String dbType) throws Exception;
 
 
-    public BeanDBSourceShow getAllSourcesBySourceName(String sourceName) throws Exception;
+    public String getAllSourcesBySourceName(String sourceName) throws Exception;
 
 
 
@@ -26,8 +24,7 @@ public interface DataAccesser {
                              String sync_password) throws Exception;
 
 
-    public void submit2Oozie(String scriptPath) throws Exception;
-
+    public String deleteSource(String source_name) throws Exception;
 
 
 

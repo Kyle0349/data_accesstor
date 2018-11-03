@@ -1,0 +1,66 @@
+##--test_tb_db_type--##
+
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for test_tb_db_type
+-- ----------------------------
+DROP TABLE IF EXISTS `test_tb_db_type`;
+CREATE TABLE `test_tb_db_type` (
+  `db_type_id` int(11) NOT NULL,
+  `db_type_name` varchar(20) NOT NULL,
+  `db_driver` varchar(100) NOT NULL,
+  `db_url_prefix` varchar(255) NOT NULL,
+  PRIMARY KEY (`db_type_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+-- Records of test_tb_db_type
+-- ----------------------------
+BEGIN;
+INSERT INTO `test_tb_db_type` VALUES (1001, 'mysql', 'com.mysql.jdbc.Driver', 'jdbc:mysql://');
+INSERT INTO `test_tb_db_type` VALUES (1002, 'oracle', 'oracle.jdbc.OracleDriver', 'jdbc:oracle:thin:@');
+INSERT INTO `test_tb_db_type` VALUES (1003, 'PostgreSQL', 'org.postgresql.Driver', 'jdbc:postgresql://');
+COMMIT;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+
+##--test_tb_source_manager--##
+CSET NAMES utf8mb4;
+ SET FOREIGN_KEY_CHECKS = 0;
+
+ -- ----------------------------
+ -- Table structure for test_tb_source_manager
+ -- ----------------------------
+ DROP TABLE IF EXISTS `test_tb_source_manager`;
+ CREATE TABLE `test_tb_source_manager` (
+   `source_id` int(11) NOT NULL AUTO_INCREMENT,
+   `source_name` varchar(100) NOT NULL,
+   `source_type_id` int(11) NOT NULL,
+   `source_ip` varchar(20) NOT NULL,
+   `source_port` varchar(5) NOT NULL,
+   `source_db` varchar(100) NOT NULL,
+   `sync_username` varchar(255) NOT NULL,
+   `sync_password` varchar(255) NOT NULL,
+   PRIMARY KEY (`source_id`),
+   UNIQUE KEY `source_name` (`source_name`),
+   KEY `source_type_id` (`source_type_id`),
+   CONSTRAINT `test_tb_source_manager_ibfk_1` FOREIGN KEY (`source_type_id`) REFERENCES `test_tb_db_type` (`db_type_id`) ON UPDATE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=1000018 DEFAULT CHARSET=latin1;
+
+ -- ----------------------------
+ -- Records of test_tb_source_manager
+ -- ----------------------------
+ BEGIN;
+ INSERT INTO `test_tb_source_manager` VALUES (1000001, 'mysql-test01', 1001, '192.1.1.0', '3306', 'test', 'root01', 'root01');
+ INSERT INTO `test_tb_source_manager` VALUES (1000002, 'mysql-test02', 1001, '192.1.1.1', '3306', 'test', 'root02', 'root02');
+ INSERT INTO `test_tb_source_manager` VALUES (1000003, 'oracle-test03', 1002, '192.1.1.2', '1433', 'test', 'root03', 'root03');
+ INSERT INTO `test_tb_source_manager` VALUES (1000004, 'pg-test04', 1003, '192.1.1.3', '5432', 'test', 'root04', 'root04');
+ INSERT INTO `test_tb_source_manager` VALUES (1000009, 'mysql-test06', 1001, '192.1.1.5', '3306', 'test', 'root5', 'root5');
+ INSERT INTO `test_tb_source_manager` VALUES (1000013, 'mysql-test001', 1001, 'centos1', '3306', 'test', 'root', 'root');
+ INSERT INTO `test_tb_source_manager` VALUES (1000017, 'mysql-test0013', 1001, 'centos1', '3306', 'test', 'root', 'root');
+ COMMIT;
+
+ SET FOREIGN_KEY_CHECKS = 1;

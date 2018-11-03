@@ -1,6 +1,7 @@
 package com.qhcs.accesser.client;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
@@ -21,7 +22,6 @@ public class HDFSClient {
 	private String HDFS_URI;
 	@Value("${HDFS_OPER_USER}")
 	private String HDFS_OPER_USER;
-
 
 	/**
 	 * 加载fileSystem
@@ -96,6 +96,28 @@ public class HDFSClient {
 		return false;
 	}
 
+
+	/**
+	 *
+	 * @param is
+	 * @param hdfsDir
+	 * @param scriptName
+	 * @return
+	 * @throws Exception
+	 */
+	public String uploadFile2(InputStream is, String hdfsDir, String scriptName) throws Exception{
+		Configuration conf = new Configuration();
+		URI uri = new URI(HDFS_URI);
+		FileSystem fs = FileSystem.get(uri, conf, "root");
+		if (!fs.exists(new Path(hdfsDir))){
+			fs.mkdirs(new Path(hdfsDir));
+		}
+		FSDataOutputStream fsDataOutputStream = fs.create(new Path(hdfsDir + "/" + scriptName));
+		IOUtils.copyBytes(is, fsDataOutputStream,1024,true);
+		return hdfsDir + "/" + scriptName;
+
+	}
+
 	/**
 	 * 删除文件
 	 *
@@ -140,11 +162,6 @@ public class HDFSClient {
 			if (!fileSystem.exists(path)) {// 如果不存在则创建
 				fileSystem.mkdirs(path);
 			}
-			// if (!sameDay) {// 如果是本地新产生的文件，则hdfs也要对应产生一个文件
-			// hdfsFileName = createNewFileName(hdfsPath, hdfsFileName, fileSystem);
-			// path02 = new Path(hdfsPath + hdfsFileName);
-			// fileSystem.createNewFile(path02);
-			// } else {
 			if (!fileSystem.exists(path02)) {
 				fileSystem.createNewFile(path02);
 			}
@@ -171,4 +188,6 @@ public class HDFSClient {
 		}
 		return boo;
 	}
+
+
 }

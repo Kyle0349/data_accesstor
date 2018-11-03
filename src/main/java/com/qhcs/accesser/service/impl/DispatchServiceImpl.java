@@ -19,10 +19,6 @@ public class DispatchServiceImpl implements DispatchService {
 
 	@Value("${OOZIE_WF_APPLICATION_PATH}")
 	private String OOZIE_WF_APPLICATION_PATH;
-	@Value("${JOBTRACKER}")
-	private String JOBTRACKER;
-	@Value("${NAMENODE}")
-	private String NAMENODE;
 	@Value("${OOZIE_COORDINATOR_APPLICATION_PATH}")
 	private String OOZIE_COORDINATOR_APPLICATION_PATH;
 	@Value("${END_TIME}")
@@ -44,7 +40,8 @@ public class DispatchServiceImpl implements DispatchService {
 		String workflowAppPath = XmlCreateUtils.createShellWorkflowXml(OOZIE_WF_APPLICATION_PATH, jobName,
 				shPath, args);
 		// 调用oozie接口提交任务
-		return manager.submitJob(workflowAppPath, JOBTRACKER, NAMENODE);
+		//return manager.submitJob(workflowAppPath, JOBTRACKER, NAMENODE);
+		return manager.submitJob(workflowAppPath);
 	}
 
 	public String submitTimerJob(String jobName, String shPath, String frequency, String startTime, String... args)
@@ -64,21 +61,9 @@ public class DispatchServiceImpl implements DispatchService {
 		// 创建xml并上传到指定的路径
 		String coordinatorAppPath = XmlCreateUtils.createShellCoordinatorXml(
 				OOZIE_COORDINATOR_APPLICATION_PATH, jobName);
-		return manager.submitTimerJob(coordinatorAppPath, frequency, startTime, END_TIME, workflowAppPath,
-				JOBTRACKER, NAMENODE);
+		return manager.submitTimerJob(coordinatorAppPath, frequency, startTime, END_TIME, workflowAppPath);
 	}
 
-//	public String submitTimerJob(String jobId, String frequency) throws DispatchServiceException {
-//		if (StringUtils.isBlank(jobId) || StringUtils.isBlank(frequency)) {
-//			throw new DispatchServiceException("parameters can not be empty！");
-//		}
-//		// 通过jobId来查询job的信息
-//		String workflowAppUri = manager.selectAppUri(jobId);
-//		// 创建xml并上传到指定的路径
-//		XmlCreateUtils.createShellCoordinatorXml(frequency, SystemConfig.START_TIME, SystemConfig.END_TIME,
-//				workflowAppUri, SystemConfig.JOBTRACKER, SystemConfig.NAMENODE);
-//		return manager.submitTimerJob(workflowAppUri);
-//	}
 
 	private boolean checkJobName(String jobName) throws DispatchServiceException {
 		if (StringUtils.isBlank(jobName)) {
@@ -99,5 +84,14 @@ public class DispatchServiceImpl implements DispatchService {
 			throw new DispatchServiceException("parameter can not be empty！");
 		}
 		manager.reRunJob(jobId);
+	}
+
+	@Override
+	public String killJob(String jobId) throws DispatchServiceException {
+		if (StringUtils.isBlank(jobId)) {
+			throw new DispatchServiceException("parameter can not be empty！");
+		}
+		String s = manager.killJob(jobId);
+		return s;
 	}
 }
